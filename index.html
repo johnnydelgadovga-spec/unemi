@@ -1,554 +1,232 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Clasificador de Incidentes de Cyberbotillo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Clasificador de Incidentes – Cyberbotillo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root {
-      --fondo: #f3f7ff;
-      --primario: #2563eb;
-      --primario-suave: #dbeafe;
-      --correcto: #16a34a;
-      --incorrecto: #dc2626;
-      --texto: #111827;
-      --borde: #cbd5f5;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: var(--fondo);
-      color: var(--texto);
-      display: flex;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .app {
-      max-width: 900px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 18px;
-      border: 1px solid var(--borde);
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-      padding: 1.5rem 1.75rem 2rem;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      margin: 0 0 0.25rem;
-      text-align: center;
-      color: var(--primario);
-    }
-
-    .subtitulo {
-      text-align: center;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-    }
-
-    .info-nee {
-      font-size: 0.85rem;
-      background: #eef2ff;
-      border-left: 4px solid var(--primario);
-      padding: 0.6rem 0.75rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .incident-card {
-      background: var(--primario-suave);
-      border-radius: 14px;
-      padding: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .incident-titulo {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .incident-titulo span.emoji {
-      font-size: 1.2rem;
-    }
-
-    .incident-texto {
-      font-size: 1rem;
-      line-height: 1.4;
-    }
-
-    .seccion {
-      margin-bottom: 1.25rem;
-    }
-
-    .seccion h2 {
-      font-size: 1.05rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .grupo-opciones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .etiqueta-grupo {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
-
-    .opcion-btn {
-      flex: 1;
-      min-width: 120px;
-      border-radius: 999px;
-      border: 2px solid var(--borde);
-      padding: 0.55rem 0.75rem;
-      font-size: 0.95rem;
-      background: #ffffff;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.18s ease;
-      outline: none;
-    }
-
-    .opcion-btn:hover,
-    .opcion-btn:focus-visible {
-      border-color: var(--primario);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
-    }
-
-    .opcion-btn.selected {
-      background: var(--primario);
-      color: #ffffff;
-      border-color: var(--primario);
-      font-weight: 600;
-      transform: translateY(-1px);
-    }
-
-    .botones-acciones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-
-    .btn {
-      border-radius: 999px;
-      padding: 0.6rem 1.1rem;
-      border: none;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      outline: none;
-      transition: all 0.18s ease;
-    }
-
-    .btn-primario {
-      background: var(--primario);
-      color: #ffffff;
-    }
-
-    .btn-secundario {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-primario:hover,
-    .btn-primario:focus-visible {
-      background: #1d4ed8;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
-      transform: translateY(-1px);
-    }
-
-    .btn-secundario:hover,
-    .btn-secundario:focus-visible {
-      background: #d4d4d8;
-      box-shadow: 0 6px 14px rgba(148, 163, 184, 0.35);
-      transform: translateY(-1px);
-    }
-
-    .feedback {
-      margin-top: 0.9rem;
-      font-size: 0.98rem;
-      font-weight: 600;
-      padding: 0.6rem 0.75rem;
-      border-radius: 10px;
-      display: none;
-    }
-
-    .feedback.ok {
-      background: #dcfce7;
-      color: var(--correcto);
-      border: 1px solid #bbf7d0;
-    }
-
-    .feedback.error {
-      background: #fee2e2;
-      color: var(--incorrecto);
-      border: 1px solid #fecaca;
-    }
-
-    .pista {
-      font-size: 0.9rem;
-      margin-top: 0.4rem;
-      background: #fefce8;
-      border-radius: 8px;
-      padding: 0.5rem 0.6rem;
-      border: 1px dashed #facc15;
-      display: none;
-    }
-
-    .contador {
-      font-size: 0.9rem;
-      margin-top: 0.75rem;
-      color: #4b5563;
-    }
-
-    .contador span {
-      font-weight: 700;
-      color: #111827;
-    }
-
-    .nota-oral {
-      margin-top: 0.9rem;
-      font-size: 0.85rem;
-      color: #4b5563;
-    }
-
-    @media (max-width: 640px) {
-      .app {
-        padding: 1.1rem 1rem 1.5rem;
-      }
-      h1 {
-        font-size: 1.35rem;
-      }
-      .opcion-btn {
-        font-size: 0.9rem;
-      }
-      .botones-acciones {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  </style>
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f3f7ff;
+  margin:0;
+  padding:20px;
+  display:flex;
+  justify-content:center;
+}
+.contenedor{
+  max-width:900px;
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+h1{
+  color:#2563eb;
+  text-align:center;
+}
+.subtitulo{
+  text-align:center;
+  margin-bottom:20px;
+}
+.avatar{
+  text-align:center;
+  margin-bottom:20px;
+}
+.avatar img{
+  max-width:280px;
+  width:90%;
+  border-radius:14px;
+}
+.boton{
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:999px;
+  padding:12px 20px;
+  font-size:1rem;
+  cursor:pointer;
+  margin:8px;
+}
+.boton.verde{
+  background:#16a34a;
+}
+.incidente{
+  background:#dbeafe;
+  padding:15px;
+  border-radius:12px;
+  margin:20px 0;
+}
+.opciones{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:15px;
+}
+.opciones button{
+  flex:1;
+  min-width:120px;
+  border:2px solid #cbd5f5;
+  border-radius:999px;
+  padding:10px;
+  cursor:pointer;
+  background:white;
+}
+.opciones button.activo{
+  background:#2563eb;
+  color:white;
+}
+.feedback{
+  font-weight:bold;
+  margin-top:10px;
+}
+.correcto{ color:#16a34a; }
+.incorrecto{ color:#dc2626; }
+.pista{
+  background:#fef3c7;
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+}
+</style>
 </head>
+
 <body>
-  <main class="app" aria-labelledby="titulo-app">
-    <h1 id="titulo-app">Clasificador de Incidentes de Cyberbotillo</h1>
-    <p class="subtitulo">
-      Aprende a clasificar incidentes por <strong>origen</strong>,
-      <strong>tipo</strong> e <strong>intencionalidad</strong>.
-    </p>
 
-    <section class="info-nee" aria-label="Apoyos de accesibilidad">
-      Para estudiantes con NEE: usa el apoyo visual (colores, iconos), lee en voz
-      alta el incidente y, si lo deseas, permite que respondan señalando, hablando
-      o pulsando las opciones.
-    </section>
+<div class="contenedor">
 
-    <section class="incident-card" aria-live="polite">
-      <div class="incident-titulo">
-        <span class="emoji">🧩</span>
-        <span>Incidente actual</span>
-      </div>
-      <p id="incident-texto" class="incident-texto">
-        Cargando incidente...
-      </p>
+  <!-- TÍTULO -->
+  <h1>Clasificador de Incidentes de Cyberbotillo</h1>
+  <p class="subtitulo">
+    Aprende a clasificar incidentes por <b>origen</b>, <b>tipo</b> e <b>intencionalidad</b>.
+  </p>
 
-      <!-- Aquí puedes añadir un botón de audio si generas voz con IA -->
-      <!--
-      <button class="btn btn-secundario" type="button">
-        🔊 Escuchar incidente
-      </button>
-      -->
-    </section>
+  <!-- AVATAR + AUDIO REAL -->
+  <div class="avatar">
+    <img src="ciberbotillo.png" alt="Cyberbotillo, avatar robótico asistente">
+    <br>
+    <button class="boton" onclick="document.getElementById('audioBienvenida').play()">
+      🔊 Escuchar bienvenida
+    </button>
+    <audio id="audioBienvenida" src="Cyberbotillo.mp3"></audio>
+  </div>
 
-    <section class="seccion" aria-label="Opciones de clasificación">
-      <h2>Elige la clasificación correcta</h2>
+  <!-- INCIDENTE -->
+  <div class="incidente">
+    <b>🧩 Incidente:</b>
+    <p id="textoIncidente">Cargando incidente...</p>
+    <button class="boton verde" onclick="hablar(textoIncidente.innerText)">
+      🔊 Escuchar incidente
+    </button>
+  </div>
 
-      <div>
-        <p class="etiqueta-grupo">1. Origen del incidente</p>
-        <div class="grupo-opciones">
-          <button class="opcion-btn"
-                  data-grupo="origen"
-                  data-valor="interno"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Interno
-          </button>
-          <button class="opcion-btn"
-                  data-grupo="origen"
-                  data-valor="externo"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Externo
-          </button>
-        </div>
-      </div>
+  <!-- ORIGEN -->
+  <p><b>1. Origen</b></p>
+  <div class="opciones" data-grupo="origen">
+    <button onclick="seleccionar(this,'origen','interno')">Interno</button>
+    <button onclick="seleccionar(this,'origen','externo')">Externo</button>
+  </div>
 
-      <div>
-        <p class="etiqueta-grupo">2. Tipo de incidente</p>
-        <div class="grupo-opciones">
-          <button class="opcion-btn"
-                  data-grupo="tipo"
-                  data-valor="humano"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Humano
-          </button>
-          <button class="opcion-btn"
-                  data-grupo="tipo"
-                  data-valor="tecnologico"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Tecnológico
-          </button>
-        </div>
-      </div>
+  <!-- TIPO -->
+  <p><b>2. Tipo</b></p>
+  <div class="opciones" data-grupo="tipo">
+    <button onclick="seleccionar(this,'tipo','humano')">Humano</button>
+    <button onclick="seleccionar(this,'tipo','tecnologico')">Tecnológico</button>
+  </div>
 
-      <div>
-        <p class="etiqueta-grupo">3. Intencionalidad</p>
-        <div class="grupo-opciones">
-          <button class="opcion-btn"
-                  data-grupo="intencionalidad"
-                  data-valor="accidental"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Accidental
-          </button>
-          <button class="opcion-btn"
-                  data-grupo="intencionalidad"
-                  data-valor="deliberado"
-                  type="button"
-                  role="button"
-                  tabindex="0">
-            Deliberado
-          </button>
-        </div>
-      </div>
+  <!-- INTENCIONALIDAD -->
+  <p><b>3. Intencionalidad</b></p>
+  <div class="opciones" data-grupo="intencionalidad">
+    <button onclick="seleccionar(this,'intencionalidad','accidental')">Accidental</button>
+    <button onclick="seleccionar(this,'intencionalidad','deliberado')">Deliberado</button>
+  </div>
 
-      <div class="botones-acciones">
-        <button id="btn-comprobar" class="btn btn-primario" type="button">
-          ✅ Comprobar respuesta
-        </button>
-        <button id="btn-pista" class="btn btn-secundario" type="button">
-          💡 Ver pista
-        </button>
-        <button id="btn-nuevo" class="btn btn-secundario" type="button">
-          🔄 Nuevo incidente
-        </button>
-      </div>
+  <!-- BOTONES -->
+  <button class="boton" onclick="comprobar()">✅ Comprobar</button>
+  <button class="boton" onclick="mostrarPista()">💡 Ver pista</button>
+  <button class="boton" onclick="nuevoIncidente()">🔄 Nuevo incidente</button>
 
-      <div id="feedback" class="feedback" aria-live="polite"></div>
-      <div id="pista" class="pista"></div>
-      <p class="contador">
-        Incidentes resueltos correctamente: <span id="contador-bien">0</span>
-      </p>
+  <!-- FEEDBACK -->
+  <div id="feedback" class="feedback"></div>
+  <div id="pista" class="pista" style="display:none;"></div>
 
-      <p class="nota-oral">
-        Nota para el docente: si algún estudiante no puede pulsar botones,
-        puede responder de forma oral o señalando, y usted puede marcar la opción
-        por él/ella.
-      </p>
-    </section>
-  </main>
+</div>
 
-  <script>
-    const incidentes = [
-      {
-        texto:
-          "Un estudiante descarga sin saberlo un archivo infectado desde una página de juegos.",
-        origen: "externo",
-        tipo: "tecnologico",
-        intencionalidad: "accidental",
-        pista:
-          "Piensa: ¿la acción sucedió fuera o dentro de la institución? ¿La causa fue una persona o una computadora?"
-      },
-      {
-        texto:
-          "Un técnico de laboratorio desconecta por error el cable de red del servidor y se cae el sistema.",
-        origen: "interno",
-        tipo: "humano",
-        intencionalidad: "accidental",
-        pista:
-          "Sucedió dentro de la institución y fue una persona quien actuó, pero sin mala intención."
-      },
-      {
-        texto:
-          "Alguien envía correos falsos para robar contraseñas a los usuarios del colegio.",
-        origen: "externo",
-        tipo: "humano",
-        intencionalidad: "deliberado",
-        pista:
-          "La persona ya sabe lo que quiere hacer y lo hace desde afuera con mala intención."
-      },
-      {
-        texto:
-          "Una actualización automática del sistema provoca que varios equipos dejen de funcionar correctamente.",
-        origen: "externo",
-        tipo: "tecnologico",
-        intencionalidad: "accidental",
-        pista:
-          "La causa es un software, no una persona directa, y no se hizo con mala intención."
-      },
-      {
-        texto:
-          "Un estudiante comparte a propósito un virus por USB para dañar los equipos del aula.",
-        origen: "interno",
-        tipo: "humano",
-        intencionalidad: "deliberado",
-        pista:
-          "Ocurre dentro de la institución, lo hace una persona y lo hace a propósito."
-      },
-      {
-        texto:
-          "Una tormenta eléctrica daña el router principal y la institución se queda sin Internet.",
-        origen: "externo",
-        tipo: "tecnologico",
-        intencionalidad: "accidental",
-        pista:
-          "No hay una persona directa causando el problema; la causa viene del ambiente."
-      }
-    ];
+<script>
+let vozActiva=true;
+function hablar(texto){
+  if(!vozActiva || !window.speechSynthesis) return;
+  const u=new SpeechSynthesisUtterance(texto);
+  u.lang="es-ES";
+  u.rate=0.9;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
 
-    let incidenteActual = null;
-    let contadorBien = 0;
+const incidentes=[
+ {texto:"Un estudiante descarga sin saberlo un archivo infectado desde una página web.",
+  origen:"externo", tipo:"tecnologico", intencionalidad:"accidental",
+  pista:"El problema viene de fuera y lo causa un programa."},
 
-    const incidentTextoEl = document.getElementById("incident-texto");
-    const feedbackEl = document.getElementById("feedback");
-    const pistaEl = document.getElementById("pista");
-    const contadorBienEl = document.getElementById("contador-bien");
-    const botonesOpciones = Array.from(
-      document.querySelectorAll(".opcion-btn")
-    );
-    const btnComprobar = document.getElementById("btn-comprobar");
-    const btnPista = document.getElementById("btn-pista");
-    const btnNuevo = document.getElementById("btn-nuevo");
+ {texto:"Un técnico desconecta por error el cable del servidor.",
+  origen:"interno", tipo:"humano", intencionalidad:"accidental",
+  pista:"Ocurre dentro y lo hace una persona sin intención."},
 
-    function elegirIncidente() {
-      const indice = Math.floor(Math.random() * incidentes.length);
-      incidenteActual = incidentes[indice];
-      incidentTextoEl.textContent = incidenteActual.texto;
-      limpiarSeleccion();
-      limpiarFeedback();
-    }
+ {texto:"Alguien envía correos falsos para robar contraseñas.",
+  origen:"externo", tipo:"humano", intencionalidad:"deliberado",
+  pista:"La persona actúa a propósito desde fuera."}
+];
 
-    function limpiarSeleccion() {
-      botonesOpciones.forEach((btn) => btn.classList.remove("selected"));
-    }
+let actual;
+let seleccionActual={};
 
-    function limpiarFeedback() {
-      feedbackEl.style.display = "none";
-      feedbackEl.textContent = "";
-      feedbackEl.classList.remove("ok", "error");
-      pistaEl.style.display = "none";
-      pistaEl.textContent = "";
-    }
+const textoIncidente=document.getElementById("textoIncidente");
 
-    function marcarOpcion(btn) {
-      const grupo = btn.getAttribute("data-grupo");
-      botonesOpciones
-        .filter((b) => b.getAttribute("data-grupo") === grupo)
-        .forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-    }
+function nuevoIncidente(){
+  actual=incidentes[Math.floor(Math.random()*incidentes.length)];
+  textoIncidente.innerText=actual.texto;
+  seleccionActual={};
+  document.getElementById("feedback").innerText="";
+  document.getElementById("pista").style.display="none";
+  hablar(actual.texto);
+  document.querySelectorAll(".opciones button").forEach(b=>b.classList.remove("activo"));
+}
 
-    botonesOpciones.forEach((btn) => {
-      btn.addEventListener("click", () => marcarOpcion(btn));
-      btn.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          marcarOpcion(btn);
-        }
-      });
-    });
+function seleccionar(btn,grupo,valor){
+  document.querySelectorAll(`.opciones[data-grupo="${grupo}"] button`)
+    .forEach(b=>b.classList.remove("activo"));
+  btn.classList.add("activo");
+  seleccionActual[grupo]=valor;
+}
 
-    btnComprobar.addEventListener("click", () => {
-      if (!incidenteActual) return;
+function comprobar(){
+  if(!seleccionActual.origen||!seleccionActual.tipo||!seleccionActual.intencionalidad){
+    feedback.innerText="Debes elegir una opción en cada grupo.";
+    feedback.className="feedback incorrecto";
+    hablar(feedback.innerText);
+    return;
+  }
+  if(seleccionActual.origen===actual.origen &&
+     seleccionActual.tipo===actual.tipo &&
+     seleccionActual.intencionalidad===actual.intencionalidad){
+    feedback.innerText="¡Muy bien! Clasificación correcta.";
+    feedback.className="feedback correcto";
+    hablar(feedback.innerText);
+  }else{
+    feedback.innerText="Revisa tu respuesta e intenta otra vez.";
+    feedback.className="feedback incorrecto";
+    hablar(feedback.innerText);
+  }
+}
 
-      const seleccion = {
-        origen: null,
-        tipo: null,
-        intencionalidad: null
-      };
+function mostrarPista(){
+  pista.innerText=actual.pista;
+  pista.style.display="block";
+  hablar("Pista. "+actual.pista);
+}
 
-      botonesOpciones.forEach((btn) => {
-        if (btn.classList.contains("selected")) {
-          const grupo = btn.getAttribute("data-grupo");
-          const valor = btn.getAttribute("data-valor");
-          seleccion[grupo] = valor;
-        }
-      });
+nuevoIncidente();
+</script>
 
-      if (!seleccion.origen || !seleccion.tipo || !seleccion.intencionalidad) {
-        feedbackEl.style.display = "block";
-        feedbackEl.textContent =
-          "Primero elige una opción en cada grupo: origen, tipo e intencionalidad.";
-        feedbackEl.classList.remove("ok");
-        feedbackEl.classList.add("error");
-        pistaEl.style.display = "none";
-        pistaEl.textContent = "";
-        return;
-      }
-
-      const esCorrecto =
-        seleccion.origen === incidenteActual.origen &&
-        seleccion.tipo === incidenteActual.tipo &&
-        seleccion.intencionalidad === incidenteActual.intencionalidad;
-
-      feedbackEl.style.display = "block";
-
-      if (esCorrecto) {
-        feedbackEl.textContent =
-          "¡Muy bien! Has clasificado el incidente de forma correcta.";
-        feedbackEl.classList.remove("error");
-        feedbackEl.classList.add("ok");
-        contadorBien++;
-        contadorBienEl.textContent = String(contadorBien);
-      } else {
-        feedbackEl.textContent =
-          "Hay algún dato incorrecto. Revisa de nuevo origen, tipo e intencionalidad.";
-        feedbackEl.classList.remove("ok");
-        feedbackEl.classList.add("error");
-      }
-    });
-
-    btnPista.addEventListener("click", () => {
-      if (!incidenteActual) return;
-      pistaEl.style.display = "block";
-      pistaEl.textContent = incidenteActual.pista;
-    });
-
-    btnNuevo.addEventListener("click", () => {
-      elegirIncidente();
-    });
-
-    elegirIncidente();
-  </script>
 </body>
 </html>
